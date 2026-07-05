@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hóa Học 9 - Base tác dụng với Acid | Thầy Lâm</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Cấu hình Tailwind Color -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'nature-green': '#4ade80',
+                        'nature-dark-green': '#166534',
+                        'nature-yellow': '#fde047',
+                        'nature-bg': '#f0fdf4',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- MathJax Configuration cho CommonHTML (chtml) -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            chtml: {
+                scale: 1.1
+            }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+    </script>
+
+    <style>
+        /* Typography & Căn bản */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0fdf4; /* nature-bg */
+            color: #1f2937;
+        }
+
+        /* Nút Kêu gọi Hành động Chính (Bắt đầu học) - Pill shaped, gradient */
+        .btn-primary {
+            border-radius: 9999px;
+            background: linear-gradient(to right, #4ade80, #16a34a);
+            color: white;
+            font-weight: bold;
+            padding: 1rem 2.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Nút Chức năng Phụ (Mô phỏng, Nộp bài) - Rounded rect, solid */
+        .btn-secondary {
+            border-radius: 0.5rem;
+            background-color: #fde047; /* nature-yellow */
+            color: #166534; /* nature-dark-green */
+            font-weight: 600;
+            padding: 0.5rem 1.5rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn-secondary:hover {
+            background-color: #facc15;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+        }
+
+        /* Trang bìa mở đầu */
+        #cover-page {
+            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.7s ease-out;
+        }
+
+        /* CSS Tab Desktop */
+        .tab-btn {
+            position: relative;
+            transition: all 0.3s;
+        }
+        .active-tab {
+            color: #166534;
+            font-weight: 700;
+        }
+        .active-tab::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: #166534;
+            border-radius: 2px;
+        }
+
+        /* CSS Tab Mobile theo yêu cầu */
+        .active-mobile-tab {
+            background-color: #dcfce7; /* xanh lá nhạt */
+            color: #166534; /* xanh đậm */
+            font-weight: bold;
+            border-left: 4px solid #166534;
+        }
+
+        /* SVG Animation Classes */
+        .anim-element {
+            transition: all 1.5s ease-in-out;
+        }
+        .fade-in {
+            opacity: 1 !important;
+            transition: opacity 1s ease-in;
+        }
+        .fade-out {
+            opacity: 0 !important;
+            transition: opacity 0.5s ease-out;
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+    <!-- TRANG MỞ ĐẦU (BÌA SÁCH) -->
+    <div id="cover-page" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-green-100 via-yellow-50 to-green-300">
+        <div class="text-center p-8 bg-white/60 backdrop-blur-md rounded-2xl shadow-2xl max-w-2xl mx-4 border border-white/50">
+            <h3 class="text-xl text-green-700 font-semibold mb-2">Lớp Học Của Thầy Lâm</h3>
+            <h1 class="text-4xl md:text-5xl font-extrabold text-green-900 mb-6 leading-tight">Sự Hòa Hợp Của Tự Nhiên: <br> <span class="text-yellow-600">Base & Acid</span></h1>
+            <p class="text-lg text-gray-700 mb-10 italic">"Mọi xung đột dữ dội nhất, cuối cùng đều tìm về sự cân bằng và dịu êm..."</p>
+            <button id="start-btn" class="btn-primary text-lg">Bắt đầu học ngay</button>
+        </div>
+    </div>
+
+    <!-- MAIN APP WRAPPER (Ẩn ban đầu để không bị scroll loạn) -->
+    <div id="main-app" class="min-h-screen flex flex-col hidden opacity-0 transition-opacity duration-700">
+        
+        <!-- HEADER & NAVIGATION -->
+        <header class="bg-white shadow-md sticky top-0 z-30">
+            <!-- Thanh Top Bar cho Mobile -->
+            <div class="flex lg:hidden justify-between items-center p-4">
+                <div class="text-xl font-bold text-nature-dark-green">Thầy Lâm Hóa Học</div>
+                <button id="hamburger-button" class="text-green-800 hover:text-green-600 focus:outline-none">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Tabs Ngang cho Desktop -->
+            <div class="hidden lg:flex justify-center space-x-8 p-4 bg-green-50/50 border-b border-green-100">
+                <button class="tab-btn active-tab text-gray-600 hover:text-green-700 pb-2 text-lg font-medium" data-target="tab-intro">Giới thiệu</button>
+                <button class="tab-btn text-gray-600 hover:text-green-700 pb-2 text-lg font-medium" data-target="tab-1">1. Phản ứng Trung hòa</button>
+                <button class="tab-btn text-gray-600 hover:text-green-700 pb-2 text-lg font-medium" data-target="tab-2">2. Phương trình Hóa học</button>
+                <button class="tab-btn text-gray-600 hover:text-green-700 pb-2 text-lg font-medium" data-target="tab-3">3. Ứng dụng Thực tiễn</button>
+                <button class="tab-btn text-gray-600 hover:text-green-700 pb-2 text-lg font-medium" data-target="tab-test">Kiểm tra</button>
+            </div>
+        </header>
+
+        <!-- MOBILE SIDEBAR (Menu Trượt) -->
+        <div id="mobile-menu" class="fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-2xl transform -translate-x-full transition-transform duration-300 ease-in-out lg:hidden flex flex-col">
+            <div class="flex justify-between items-center p-4 border-b border-green-100 bg-green-50">
+                <span class="font-bold text-lg text-green-800">Danh mục</span>
+                <button id="close-menu-button" class="text-gray-500 hover:text-red-500">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="flex flex-col py-2">
+                <button class="mobile-tab-btn active-mobile-tab text-left px-6 py-4 text-gray-700 transition-colors" data-target="tab-intro">Giới thiệu</button>
+                <button class="mobile-tab-btn text-left px-6 py-4 text-gray-700 hover:bg-green-50 transition-colors" data-target="tab-1">1. Phản ứng Trung hòa</button>
+                <button class="mobile-tab-btn text-left px-6 py-4 text-gray-700 hover:bg-green-50 transition-colors" data-target="tab-2">2. Phương trình Hóa học</button>
+                <button class="mobile-tab-btn text-left px-6 py-4 text-gray-700 hover:bg-green-50 transition-colors" data-target="tab-3">3. Ứng dụng Thực tiễn</button>
+                <button class="mobile-tab-btn text-left px-6 py-4 text-gray-700 hover:bg-green-50 transition-colors" data-target="tab-test">Kiểm tra</button>
+            </div>
+        </div>
+        <!-- Lớp phủ tối khi mở menu mobile -->
+        <div id="mobile-overlay" class="fixed inset-0 bg-black/20 z-30 hidden lg:hidden"></div>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="flex-grow max-w-5xl mx-auto w-full p-6 sm:p-8">
+            
+            <!-- TAB: GIỚI THIỆU -->
+            <div id="tab-intro" class="tab-content block">
+                <div class="bg-white rounded-2xl shadow-lg p-8 border-t-4 border-green-500">
+                    <div class="flex items-center mb-6">
+                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mr-4 shadow-inner">
+                            <span class="text-3xl">👨‍🏫</span>
+                        </div>
+                        <h2 class="text-3xl font-bold text-green-800">Lời ngỏ từ Thầy Lâm</h2>
+                    </div>
+                    <div class="prose max-w-none text-gray-700 text-lg leading-relaxed space-y-4">
+                        <p>Chào các em! Có bao giờ các em thấy sấm chớp ầm ĩ trên bầu trời, để rồi sau đó là một cơn mưa mát lành và bầu không khí trong vắt chưa?</p>
+                        <p>Trong Hóa học cũng có một câu chuyện tương tự. Đó là câu chuyện về <strong>Acid</strong> (mang tính chua, ăn mòn) và <strong>Base</strong> (mang tính chát, nhờn). Hai "tính cách" này hoàn toàn trái ngược nhau, giống như Lửa và Nước vậy.</p>
+                        <p>Nhưng điều kỳ diệu xảy ra khi chúng gặp nhau. Chúng không hủy diệt nhau, mà ôm lấy nhau, dung hòa tính nết của nhau để tạo ra những thứ hiền hòa nhất: <strong>Muối và Nước</strong>.</p>
+                        <p class="text-green-700 font-semibold italic">"Sự kết hợp giữa Base và Acid không phải là một cuộc chiến, mà là một vũ điệu của sự cân bằng."</p>
+                        <p>Hôm nay, thầy trò chúng ta sẽ cùng tìm hiểu về vũ điệu tuyệt đẹp này nhé!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 1: KHÁI NIỆM -->
+            <div id="tab-1" class="tab-content hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-8">
+                    <h2 class="text-3xl font-bold text-green-800 mb-6 border-b-2 border-yellow-300 pb-2">1. Khái niệm: Phản ứng Trung hòa</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                        <div>
+                            <h3 class="text-xl font-bold text-yellow-600 mb-3">Tóm tắt kiến thức</h3>
+                            <div class="bg-green-50 p-4 rounded-xl border border-green-200">
+                                <p class="mb-2"><strong>Định nghĩa:</strong> Phản ứng giữa Base và Acid được gọi là <strong>phản ứng trung hòa</strong>.</p>
+                                <p class="mb-2"><strong>Bản chất:</strong> Là sự kết hợp giữa ion $H^+$ của acid và ion $OH^-$ của base để tạo thành nước.</p>
+                                <div class="bg-white p-3 rounded shadow-sm text-center my-3 text-lg font-bold">
+                                    $$Base + Acid \rightarrow Muối + Nước$$
+                                </div>
+                                <p><strong>Ví dụ:</strong> Nhỏ từ từ dung dịch HCl vào dung dịch NaOH.</p>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-xl font-bold text-yellow-600 mb-3">Câu chuyện ngụ ngôn</h3>
+                            <p class="text-gray-700 italic">"Tại vùng đất Hóa Học, có Hắc Long Acid ($H^+$) luôn nóng nảy và Khổng Lồ Base ($OH^-$) luôn cay nghiệt. Khi chạm trán, thay vì đánh nhau, chúng trao nhau một cái ôm. Hắc Long nhường đi tính nóng, Khổng Lồ bỏ đi sự cay nghiệt. Ánh sáng lóe lên, cả hai biến thành Giọt Nước Tinh Khiết ($H_2O$) hiền hòa rơi xuống trần gian."</p>
+                        </div>
+                    </div>
+
+                    <!-- SVG Simulation 1 -->
+                    <div class="bg-gray-50 p-6 rounded-xl border border-gray-200 text-center">
+                        <h4 class="font-bold text-gray-700 mb-4">Mô phỏng: Cái ôm của sự trung hòa</h4>
+                        <svg id="sim1-svg" viewBox="0 0 400 200" class="w-full max-w-md mx-auto bg-white rounded-lg shadow-inner mb-4 overflow-hidden" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Background elements -->
+                            <rect width="400" height="200" fill="#f8fafc"/>
+                            
+                            <!-- Acid (H+) -->
+                            <g id="sim1-acid" transform="translate(50, 100)" class="anim-element">
+                                <circle cx="0" cy="0" r="30" fill="#ef4444" opacity="0.8"/>
+                                <text x="0" y="5" font-family="Arial" font-size="20" fill="white" font-weight="bold" text-anchor="middle">H⁺</text>
+                            </g>
+                            
+                            <!-- Base (OH-) -->
+                            <g id="sim1-base" transform="translate(350, 100)" class="anim-element">
+                                <circle cx="0" cy="0" r="30" fill="#3b82f6" opacity="0.8"/>
+                                <text x="0" y="5" font-family="Arial" font-size="20" fill="white" font-weight="bold" text-anchor="middle">OH⁻</text>
+                            </g>
+
+                            <!-- Water (H2O) - Hidden initially -->
+                            <g id="sim1-water" transform="translate(200, 100)" class="opacity-0">
+                                <circle cx="0" cy="0" r="40" fill="#06b6d4" opacity="0.9"/>
+                                <text x="0" y="5" font-family="Arial" font-size="22" fill="white" font-weight="bold" text-anchor="middle">H₂O</text>
+                            </g>
+                        </svg>
+                        <button onclick="runSim1()" class="btn-secondary">▶ Chạy mô phỏng</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: PHƯƠNG TRÌNH -->
+            <div id="tab-2" class="tab-content hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-8">
+                    <h2 class="text-3xl font-bold text-green-800 mb-6 border-b-2 border-yellow-300 pb-2">2. Phương trình & Nhận biết</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                        <div>
+                            <h3 class="text-xl font-bold text-yellow-600 mb-3">Kiến thức trọng tâm</h3>
+                            <div class="bg-green-50 p-4 rounded-xl border border-green-200">
+                                <p class="mb-2"><strong>Base tan (Kiềm) tác dụng với Acid:</strong></p>
+                                <div class="bg-white p-2 rounded shadow-sm text-center mb-3">
+                                    $$NaOH + HCl \rightarrow NaCl + H_2O$$
+                                    $$Ba(OH)_2 + H_2SO_4 \rightarrow BaSO_4 \downarrow + 2H_2O$$
+                                </div>
+                                <p class="mb-2"><strong>Base không tan tác dụng với Acid:</strong> Base bị hòa tan.</p>
+                                <div class="bg-white p-2 rounded shadow-sm text-center">
+                                    $$Cu(OH)_2 \text{ (xanh)} + H_2SO_4 \rightarrow CuSO_4 \text{ (xanh)} + 2H_2O$$
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-xl font-bold text-yellow-600 mb-3">Tắc kè hoa Phenolphthalein</h3>
+                            <p class="text-gray-700 italic">"Làm sao biết Hắc Long ($H^+$) đã tiêu diệt hết Khổng Lồ ($OH^-$)? Thầy thường dùng một con 'tắc kè hoa' mang tên Phenolphthalein. Khi sống trong nhà của Base, nó có màu hồng phấn lộng lẫy. Nhưng khi Acid đến và 'ôm' hết Base biến thành nước, môi trường trở nên trung tính, con tắc kè lập tức biến mất màu sắc, trở nên trong suốt báo hiệu trận chiến đã kết thúc!"</p>
+                        </div>
+                    </div>
+
+                    <!-- SVG Simulation 2 -->
+                    <div class="bg-gray-50 p-6 rounded-xl border border-gray-200 text-center">
+                        <h4 class="font-bold text-gray-700 mb-4">Mô phỏng: Nhận biết bằng chỉ thị màu</h4>
+                        <svg id="sim2-svg" viewBox="0 0 300 250" class="w-full max-w-sm mx-auto bg-white rounded-lg shadow-inner mb-4" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Beaker -->
+                            <path d="M100,80 L100,200 A20,20 0 0,0 120,220 L180,220 A20,20 0 0,0 200,200 L200,80" fill="none" stroke="#64748b" stroke-width="4"/>
+                            <ellipse cx="150" cy="80" rx="50" ry="10" fill="none" stroke="#64748b" stroke-width="4"/>
+                            
+                            <!-- Liquid (starts Pink due to Base + Phenolphthalein) -->
+                            <path id="sim2-liquid" class="anim-element" d="M102,130 L198,130 L198,200 A18,18 0 0,1 180,218 L120,218 A18,18 0 0,1 102,200 Z" fill="#fbcfe8" opacity="0.9"/>
+                            <ellipse id="sim2-liquid-top" class="anim-element" cx="150" cy="130" rx="48" ry="8" fill="#f9a8d4" opacity="0.9"/>
+                            
+                            <!-- Pipette (Acid) -->
+                            <g transform="translate(140, 10)">
+                                <rect x="5" y="0" width="10" height="40" fill="#cbd5e1" rx="2"/>
+                                <path d="M5,40 L15,40 L12,60 L8,60 Z" fill="#94a3b8"/>
+                            </g>
+                            
+                            <!-- Drop (Hidden initially) -->
+                            <circle id="sim2-drop" cx="150" cy="70" r="4" fill="#ef4444" opacity="0"/>
+                        </svg>
+                        <button onclick="runSim2()" class="btn-secondary">▶ Nhỏ Acid vào Base</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: ỨNG DỤNG -->
+            <div id="tab-3" class="tab-content hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-8">
+                    <h2 class="text-3xl font-bold text-green-800 mb-6 border-b-2 border-yellow-300 pb-2">3. Ứng dụng Thực tiễn</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                        <div>
+                            <h3 class="text-xl font-bold text-yellow-600 mb-3">Ứng dụng trong đời sống</h3>
+                            <ul class="list-disc pl-5 space-y-3 text-gray-700">
+                                <li><strong>Nông nghiệp:</strong> Đất trồng lâu năm thường bị chua (dư Acid). Nông dân bón vôi (Base - $CaO$ hoặc $Ca(OH)_2$) để trung hòa acid, giúp cây trồng phát triển tốt.</li>
+                                <li><strong>Y tế:</strong> Thuốc chữa đau dạ dày (dư acid $HCl$) thường chứa các muối có tính base nhẹ như $NaHCO_3$ hoặc $Al(OH)_3$ để trung hòa bớt acid trong dịch vị.</li>
+                                <li><strong>Xử lý chất thải:</strong> Nước thải công nghiệp chứa acid được xử lý bằng nước vôi trong trước khi thải ra môi trường.</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-xl font-bold text-yellow-600 mb-3">Câu chuyện Đất Mẹ</h3>
+                            <p class="text-gray-700 italic">"Đất Mẹ làm việc nhọc nhằn sinh ra lương thực, lâu ngày cơ thể bị nhiễm 'chua' (acid), khiến cây cỏ héo úa. Người nông dân thương Đất, liền rắc lên Đất lớp áo choàng bằng Vôi Trắng (Base). Vôi ôm lấy vị chua, hóa giải chúng thành nước ngọt ngào ngấm xuống rễ. Ngay hôm sau, những mầm xanh lại vươn lên đón nắng rực rỡ."</p>
+                        </div>
+                    </div>
+
+                    <!-- SVG Simulation 3 -->
+                    <div class="bg-gray-50 p-6 rounded-xl border border-gray-200 text-center">
+                        <h4 class="font-bold text-gray-700 mb-4">Mô phỏng: Cải tạo đất chua</h4>
+                        <svg id="sim3-svg" viewBox="0 0 400 250" class="w-full max-w-md mx-auto bg-blue-50 rounded-lg shadow-inner mb-4 overflow-hidden" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Soil (Starts Acidic - reddish brown) -->
+                            <rect id="sim3-soil" class="anim-element" x="0" y="150" width="400" height="100" fill="#9a3412"/>
+                            
+                            <!-- Plant (Small initially) -->
+                            <g id="sim3-plant" class="anim-element" transform="translate(200, 150) scale(0.3)">
+                                <path d="M0,0 Q-30,-50 0,-100 Q30,-50 0,0" fill="#22c55e"/>
+                                <path d="M0,-20 Q-40,-40 -50,-80 Q-20,-70 0,-40" fill="#4ade80"/>
+                                <path d="M0,-30 Q40,-50 50,-90 Q20,-80 0,-50" fill="#4ade80"/>
+                            </g>
+                            
+                            <!-- Lime Powder (Hidden initially) -->
+                            <g id="sim3-powder" class="opacity-0">
+                                <circle cx="150" cy="50" r="3" fill="white"/>
+                                <circle cx="170" cy="70" r="4" fill="white"/>
+                                <circle cx="210" cy="60" r="3" fill="white"/>
+                                <circle cx="230" cy="80" r="4" fill="white"/>
+                                <circle cx="190" cy="90" r="3" fill="white"/>
+                            </g>
+                        </svg>
+                        <button onclick="runSim3()" class="btn-secondary">▶ Rắc vôi cải tạo đất</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB KIỂM TRA -->
+            <div id="tab-test" class="tab-content hidden h-[800px]">
+                <div class="bg-white rounded-2xl shadow-lg p-6 h-full flex flex-col">
+                    <h2 class="text-3xl font-bold text-green-800 mb-4 border-b-2 border-yellow-300 pb-2">Bài Kiểm Tra Vận Dụng</h2>
+                    <p class="text-gray-600 mb-4">Các em hãy làm bài test dưới đây để củng cố kiến thức Thầy Lâm vừa dạy nhé.</p>
+                    
+                    <div class="flex-grow w-full border-2 border-green-200 rounded-xl overflow-hidden bg-gray-50 relative">
+                        <!-- Hiển thị lỗi thân thiện nếu không tìm thấy test.html -->
+                        <div class="absolute inset-0 flex items-center justify-center text-gray-400 -z-10">
+                            <p>Đang tải nội dung test.html...</p>
+                        </div>
+                        <iframe src="test.html" class="w-full h-full z-10" title="Bài kiểm tra Hóa học"></iframe>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- JAVASCRIPT LÔGIC CHÍNH -->
+    <script>
+        // --- 1. HIỆU ỨNG TRANG MỞ ĐẦU ---
+        const coverPage = document.getElementById('cover-page');
+        const startBtn = document.getElementById('start-btn');
+        const mainApp = document.getElementById('main-app');
+
+        startBtn.addEventListener('click', () => {
+            // Trượt lên và mờ dần (700ms)
+            coverPage.classList.add('-translate-y-full', 'opacity-0');
+            
+            // Hiển thị main app
+            mainApp.classList.remove('hidden');
+            
+            setTimeout(() => {
+                coverPage.style.display = 'none'; // Xóa hẳn khỏi luồng
+                mainApp.classList.remove('opacity-0'); // Fade in nội dung chính
+            }, 700);
+        });
+
+
+        // --- 2. LOGIC TABS & RESPONSIVE NAVIGATION ---
+        const hamburgerBtn = document.getElementById('hamburger-button');
+        const closeMenuBtn = document.getElementById('close-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileOverlay = document.getElementById('mobile-overlay');
+        
+        // Nút tab trên desktop và mobile
+        const desktopTabBtns = document.querySelectorAll('.tab-btn');
+        const mobileTabBtns = document.querySelectorAll('.mobile-tab-btn');
+        const allTabContents = document.querySelectorAll('.tab-content');
+
+        // Hàm mở/đóng mobile menu
+        function toggleMobileMenu(show) {
+            if (show) {
+                mobileMenu.classList.remove('-translate-x-full');
+                mobileOverlay.classList.remove('hidden');
+            } else {
+                mobileMenu.classList.add('-translate-x-full');
+                mobileOverlay.classList.add('hidden');
+            }
+        }
+
+        hamburgerBtn.addEventListener('click', () => toggleMobileMenu(true));
+        closeMenuBtn.addEventListener('click', () => toggleMobileMenu(false));
+        mobileOverlay.addEventListener('click', () => toggleMobileMenu(false));
+
+        // Hàm xử lý chuyển tab
+        function switchTab(targetId) {
+            // Ẩn tất cả nội dung
+            allTabContents.forEach(content => {
+                content.classList.add('hidden');
+                content.classList.remove('block');
+            });
+
+            // Xóa active classes
+            desktopTabBtns.forEach(btn => btn.classList.remove('active-tab'));
+            mobileTabBtns.forEach(btn => btn.classList.remove('active-mobile-tab'));
+
+            // Hiển thị nội dung đích
+            const targetContent = document.getElementById(targetId);
+            if(targetContent) {
+                targetContent.classList.remove('hidden');
+                targetContent.classList.add('block');
+            }
+
+            // Set active class cho cả nút desktop và mobile tương ứng
+            const activeDesktop = document.querySelector(`.tab-btn[data-target="${targetId}"]`);
+            const activeMobile = document.querySelector(`.mobile-tab-btn[data-target="${targetId}"]`);
+            
+            if(activeDesktop) activeDesktop.classList.add('active-tab');
+            if(activeMobile) activeMobile.classList.add('active-mobile-tab');
+
+            // Đóng mobile menu nếu đang mở
+            toggleMobileMenu(false);
+        }
+
+        // Gắn sự kiện cho các nút
+        desktopTabBtns.forEach(btn => {
+            btn.addEventListener('click', () => switchTab(btn.dataset.target));
+        });
+        
+        mobileTabBtns.forEach(btn => {
+            btn.addEventListener('click', () => switchTab(btn.dataset.target));
+        });
+
+
+        // --- 3. LOGIC MÔ PHỎNG SVG (ANIMATIONS) ---
+
+        // Mô phỏng 1: Trung hòa
+        let sim1Playing = false;
+        function runSim1() {
+            if(sim1Playing) return;
+            sim1Playing = true;
+            
+            const acid = document.getElementById('sim1-acid');
+            const base = document.getElementById('sim1-base');
+            const water = document.getElementById('sim1-water');
+
+            // Reset
+            acid.style.transform = 'translate(50px, 100px)';
+            base.style.transform = 'translate(350px, 100px)';
+            acid.classList.remove('fade-out');
+            base.classList.remove('fade-out');
+            water.classList.remove('fade-in');
+
+            // Animate
+            setTimeout(() => {
+                // Di chuyển vào giữa
+                acid.style.transform = 'translate(170px, 100px)';
+                base.style.transform = 'translate(230px, 100px)';
+                
+                setTimeout(() => {
+                    // Biến mất và tạo nước
+                    acid.classList.add('fade-out');
+                    base.classList.add('fade-out');
+                    water.classList.add('fade-in');
+                    sim1Playing = false;
+                }, 1500); // Đợi di chuyển xong
+            }, 100);
+        }
+
+        // Mô phỏng 2: Phenolphthalein
+        let sim2Playing = false;
+        function runSim2() {
+            if(sim2Playing) return;
+            sim2Playing = true;
+
+            const drop = document.getElementById('sim2-drop');
+            const liquid = document.getElementById('sim2-liquid');
+            const liquidTop = document.getElementById('sim2-liquid-top');
+
+            // Reset
+            liquid.setAttribute('fill', '#fbcfe8'); // Hồng
+            liquidTop.setAttribute('fill', '#f9a8d4');
+            drop.style.transition = 'none';
+            drop.setAttribute('cy', '70');
+            drop.setAttribute('opacity', '1');
+
+            // Animate Drop falling
+            setTimeout(() => {
+                drop.style.transition = 'all 0.8s ease-in';
+                drop.setAttribute('cy', '130');
+
+                // Khi giọt chạm nước
+                setTimeout(() => {
+                    drop.setAttribute('opacity', '0');
+                    
+                    // Nước mất màu (thành xám nhạt/trong suốt)
+                    liquid.setAttribute('fill', '#f1f5f9');
+                    liquidTop.setAttribute('fill', '#e2e8f0');
+                    
+                    setTimeout(() => { sim2Playing = false; }, 1000);
+                }, 800);
+            }, 100);
+        }
+
+        // Mô phỏng 3: Cải tạo đất
+        let sim3Playing = false;
+        function runSim3() {
+            if(sim3Playing) return;
+            sim3Playing = true;
+
+            const powder = document.getElementById('sim3-powder');
+            const soil = document.getElementById('sim3-soil');
+            const plant = document.getElementById('sim3-plant');
+
+            // Reset
+            powder.classList.remove('fade-in', 'fade-out');
+            powder.classList.add('opacity-0');
+            powder.style.transform = 'translateY(0)';
+            soil.setAttribute('fill', '#9a3412'); // Đất chua (đỏ nâu)
+            plant.style.transform = 'translate(200px, 150px) scale(0.3)';
+
+            // Mưa vôi
+            setTimeout(() => {
+                powder.classList.replace('opacity-0', 'fade-in');
+                powder.style.transition = 'transform 1.5s linear';
+                powder.style.transform = 'translateY(80px)';
+
+                // Vôi chạm đất
+                setTimeout(() => {
+                    powder.classList.replace('fade-in', 'fade-out');
+                    
+                    // Đất chuyển màu tốt (xanh nâu)
+                    soil.setAttribute('fill', '#78350f');
+                    
+                    // Cây lớn lên
+                    setTimeout(() => {
+                        plant.style.transform = 'translate(200px, 150px) scale(1)';
+                        sim3Playing = false;
+                    }, 500);
+
+                }, 1500);
+            }, 100);
+        }
+    </script>
+</body>
+</html>
